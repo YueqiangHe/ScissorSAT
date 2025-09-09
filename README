@@ -56,3 +56,7 @@ Examples:
 Run minisat with same heuristics as version 2.0:
 
 > minisat <cnf-file> -no-luby -rinc=1.5 -phase-saving=0 -rnd-freq=0.02
+
+### Note:
+**The above info is from the original README file of MiniSat.**
+**The parallel solution I proposed can be viewed at the following link [my README](README.md)**
