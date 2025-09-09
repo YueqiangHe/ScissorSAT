@@ -2,8 +2,6 @@
 
 PB22111649 He Yueqiang June 27, 2025
 
-[TOC]
-
 ## 1. Background of SAT Solvers
 
 ### 1.1 Overview of the SAT Problem
