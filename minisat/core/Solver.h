@@ -151,6 +151,9 @@ public:
     uint64_t solves, starts, decisions, rnd_decisions, propagations, conflicts;
     uint64_t dec_vars, num_clauses, num_learnts, clauses_literals, learnts_literals, max_literals, tot_literals;
 
+public:
+    vec<CRef>           clauses;          // List of problem clauses.
+    ClauseAllocator     ca;
 protected:
 
     // Helper structures:
@@ -187,7 +190,7 @@ protected:
 
     // Solver state:
     //
-    vec<CRef>           clauses;          // List of problem clauses.
+    // vec<CRef>           clauses;          // List of problem clauses.
     vec<CRef>           learnts;          // List of learnt clauses.
     vec<Lit>            trail;            // Assignment stack; stores all assigments made in the order they were made.
     vec<int>            trail_lim;        // Separator indices for different decision levels in 'trail'.
@@ -213,7 +216,7 @@ protected:
     double              progress_estimate;// Set by 'search()'.
     bool                remove_satisfied; // Indicates whether possibly inefficient linear scan for satisfied clauses should be performed in 'simplify'.
     Var                 next_var;         // Next variable to be created.
-    ClauseAllocator     ca;
+    // ClauseAllocator     ca;
 
     vec<Var>            released_vars;
     vec<Var>            free_vars;

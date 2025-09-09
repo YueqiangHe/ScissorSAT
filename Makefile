@@ -1,6 +1,6 @@
 ###################################################################################################
 
-.PHONY:	r d p sh cr cd cp csh lr ld lp lsh config all install install-headers install-lib\
+.PHONY:	r d p sh cr cd cp csh lr ld lp lsh pr pd pp psh config all install install-headers install-lib\
         install-bin clean distclean
 all:	r lr lsh
 
@@ -50,6 +50,7 @@ mandir      ?= $(datarootdir)/man
 
 # Target file names
 MINISAT      = minisat#       Name of MiniSat main executable.
+MINISAT_PARALLEL = minisat_parallel# Name of MiniSat parallel executable.
 MINISAT_CORE = minisat_core#  Name of simplified MiniSat executable (only core solver support).
 MINISAT_SLIB = lib$(MINISAT).a#  Name of MiniSat static library.
 MINISAT_DLIB = lib$(MINISAT).so# Name of MiniSat shared library.
@@ -73,6 +74,7 @@ SRCS = $(wildcard minisat/core/*.cc) $(wildcard minisat/simp/*.cc) $(wildcard mi
 HDRS = $(wildcard minisat/mtl/*.h) $(wildcard minisat/core/*.h) $(wildcard minisat/simp/*.h) $(wildcard minisat/utils/*.h)
 OBJS = $(filter-out %Main.o, $(SRCS:.cc=.o))
 
+
 r:	$(BUILD_DIR)/release/bin/$(MINISAT)
 d:	$(BUILD_DIR)/debug/bin/$(MINISAT)
 p:	$(BUILD_DIR)/profile/bin/$(MINISAT)
@@ -87,6 +89,12 @@ lr:	$(BUILD_DIR)/release/lib/$(MINISAT_SLIB)
 ld:	$(BUILD_DIR)/debug/lib/$(MINISAT_SLIB)
 lp:	$(BUILD_DIR)/profile/lib/$(MINISAT_SLIB)
 lsh:	$(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)
+
+pr: $(BUILD_DIR)/release/bin/$(MINISAT_PARALLEL)
+pd: $(BUILD_DIR)/debug/bin/$(MINISAT_PARALLEL)
+pp: $(BUILD_DIR)/profile/bin/$(MINISAT_PARALLEL)
+psh: $(BUILD_DIR)/dynamic/bin/$(MINISAT_PARALLEL)
+
 
 ## Build-type Compile-flags:
 $(BUILD_DIR)/release/%.o:			MINISAT_CXXFLAGS +=$(MINISAT_REL) $(MINISAT_RELSYM)
@@ -150,6 +158,14 @@ $(BUILD_DIR)/release/bin/$(MINISAT_CORE) $(BUILD_DIR)/debug/bin/$(MINISAT_CORE) 
 	$(VERB) mkdir -p $(dir $@)
 	$(VERB) $(CXX) $^ $(MINISAT_LDFLAGS) $(LDFLAGS) -o $@
 
+$(BUILD_DIR)/release/bin/$(MINISAT_PARALLEL) \
+$(BUILD_DIR)/debug/bin/$(MINISAT_PARALLEL) \
+$(BUILD_DIR)/profile/bin/$(MINISAT_PARALLEL) \
+$(BUILD_DIR)/dynamic/bin/$(MINISAT_PARALLEL):
+	$(ECHO) Linking Parallel Binary: $@
+	$(VERB) mkdir -p $(dir $@)
+	$(VERB) $(CXX) $^ $(MINISAT_LDFLAGS) $(LDFLAGS) -o $@
+
 ## Static Library rule
 %/lib/$(MINISAT_SLIB):
 	$(ECHO) Linking Static Library: $@
@@ -165,6 +181,30 @@ $(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)\
 	$(VERB) $(CXX) $(MINISAT_LDFLAGS) $(LDFLAGS) -o $@ -shared -Wl,-soname,$(MINISAT_DLIB).$(SOMAJOR) $^
 	$(VERB) ln -sf $(MINISAT_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE) $(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB).$(SOMAJOR)
 	$(VERB) ln -sf $(MINISAT_DLIB).$(SOMAJOR) $(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB)
+
+$(BUILD_DIR)/release/bin/$(MINISAT_PARALLEL): \
+	$(BUILD_DIR)/release/minisat/core/main_parallel.o \
+	$(BUILD_DIR)/release/minisat/parallel/CutsetSplitter.o \
+	$(BUILD_DIR)/release/minisat/utils/Graph.o \
+	$(BUILD_DIR)/release/lib/$(MINISAT_SLIB)
+
+$(BUILD_DIR)/debug/bin/$(MINISAT_PARALLEL): \
+	$(BUILD_DIR)/debug/minisat/core/main_parallel.o \
+	$(BUILD_DIR)/debug/minisat/parallel/CutsetSplitter.o \
+	$(BUILD_DIR)/debug/minisat/utils/Graph.o \
+	$(BUILD_DIR)/debug/lib/$(MINISAT_SLIB)
+
+$(BUILD_DIR)/profile/bin/$(MINISAT_PARALLEL): \
+	$(BUILD_DIR)/profile/minisat/core/main_parallel.o \
+	$(BUILD_DIR)/profile/minisat/parallel/CutsetSplitter.o \
+	$(BUILD_DIR)/profile/minisat/utils/Graph.o \
+	$(BUILD_DIR)/profile/lib/$(MINISAT_SLIB)
+
+$(BUILD_DIR)/dynamic/bin/$(MINISAT_PARALLEL): \
+	$(BUILD_DIR)/dynamic/minisat/core/main_parallel.o \
+	$(BUILD_DIR)/dynamic/minisat/parallel/CutsetSplitter.o \
+	$(BUILD_DIR)/dynamic/minisat/utils/Graph.o \
+	$(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB)
 
 install:	install-headers install-lib install-bin
 install-debug:	install-headers install-lib-debug
